@@ -10,6 +10,23 @@ public class RoomManager : MonoBehaviour
     
     
     
+    //stores a list of room spawn configurations+
+    public RoomSpawnInfo[] roomList;
+
+    [SerializeField] private int currentRoom = 0;
+
+    [Header("Spawning Fields")]
+    [SerializeField] private Transform roomSpawnLocation;
+
+
+
+    [Header("Light Fields")]
+    [SerializeField] private LightToggle lightToggle;
+
+    [Header("Test Fields")]
+    [SerializeField] GameObject doorOpened;
+    [SerializeField] GameObject doorClosed;
+
     //Sets up singleton pattern so that any script can call to roomManager without reference
     #region Singleton
     public static RoomManager instance;
@@ -24,38 +41,13 @@ public class RoomManager : MonoBehaviour
     }
     #endregion
 
-    //stores a list of room spawn configurations+
-    public RoomSpawnInfo[] roomList;
-
-    [SerializeField] private int currentRoom = 0;
-
-    [Header("Spawning Fields")]
-    [SerializeField] private Transform roomSpawnLocation;
-    [SerializeField] private Transform roomSpawnRotation;
-
-
-    [Header("Door Open Fields")]
-    DoorInput doorInput;
-
-    [Header("Light Fields")]
-    [SerializeField] private LightToggle lightToggle;
-
-    [Header("Test Fields")]
-    [SerializeField] GameObject doorOpened;
-    [SerializeField] GameObject doorClosed;
-
-    //is the door ready to open? is the room behind fully spawned in?
-    public bool canOpen = false;
-
-    //is the door actually open? determined by sensors/physical door
-    public bool isOpen = false;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         //Intializations
-        doorInput.OnDoorOpened += DoorOpened;
+        DoorInput.instance.OnDoorOpened += DoorOpened;
+        DoorInput.instance.OnDoorClosed += DoorClosed;
         
         SpawnRoomSpecific();
     }
@@ -73,8 +65,8 @@ public class RoomManager : MonoBehaviour
     void SpawnRoomSpecific()
     {
         RoomSpawnInfo roomToSpawn = roomList[currentRoom];
-        GameObject spawnedRoom =  Instantiate(roomToSpawn.roomInterior, roomSpawnLocation, roomSpawnRotation);
-        lightToggle.AssignLightTarget(roomToSpawn.roomLight);
+        GameObject spawnedRoom =  Instantiate(roomToSpawn.roomInterior, roomSpawnLocation.position, Quaternion.identity);
+        lightToggle.AssignLightTarget(spawnedRoom.GetComponent<RoomInstance>().roomLight);
 
         //when done spawning, increase current room count
         currentRoom++;
@@ -87,15 +79,7 @@ public class RoomManager : MonoBehaviour
 
     void OpenCurtains()
     {
-        
-        canOpen = true;
-    }
-
-
-    //Spawns a random room
-    void SpawnRoomRandom()
-    {
-        
+        Debug.Log("Opened Curtains!");
     }
 
     //called when the door is opened!

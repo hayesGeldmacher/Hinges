@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.UI;
+using UnityEngine.InputSystem;
 
 public class DoorInput : MonoBehaviour
 {
@@ -29,17 +30,17 @@ public class DoorInput : MonoBehaviour
     public delegate void doorClosedDelegate();
     public doorClosedDelegate OnDoorClosed;
 
-    [Header("Test Fields")]
-    [SerializeField] GameObject doorOpened;
-    [SerializeField] GameObject doorClosed;
-
-
-
+    private PlayerControls controls; // Input action asset
 
     void Start()
     {
-        OnDoorOpened += OpenDoor;
-        OnDoorClosed += CloseDoor;
+
+         OnDoorOpened += OpenDoor;
+         OnDoorClosed += CloseDoor;
+
+        controls = new PlayerControls();
+        //Bind the ToggleDoor action to the  method - not working, need to investigate why...
+        controls.Player.ToggleDoor.performed += ctx => ToggleDoor();
     }
 
     // Update is called once per frame
@@ -47,24 +48,23 @@ public class DoorInput : MonoBehaviour
     {
 
         //here we collect data from the door input about whether it should be considered open
+        opened = openedLastFrame;
 
-        //just for testing:
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (opened)
+    }
+
+
+    void ToggleDoor()
+    {
+        Debug.Log("Toggled the door");   
+        
+        if (opened)
             {
                 OnDoorClosed?.Invoke();
             }
-            else
+        else
             {
                 OnDoorOpened?.Invoke();
             }
-        }
-
-
-
-
-        opened = openedLastFrame;
 
     }
 

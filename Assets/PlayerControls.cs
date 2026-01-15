@@ -100,6 +100,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ToggleDoor"",
+                    ""type"": ""Button"",
+                    ""id"": ""000aa5d0-81c0-430b-94bc-84613d45b2e9"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -113,6 +122,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleLight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""48bae01e-b8bf-42f4-840f-15cc06149635"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ToggleDoor"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -122,6 +142,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_ToggleLight = m_Player.FindAction("ToggleLight", throwIfNotFound: true);
+        m_Player_ToggleDoor = m_Player.FindAction("ToggleDoor", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -203,6 +224,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_ToggleLight;
+    private readonly InputAction m_Player_ToggleDoor;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -218,6 +240,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleLight".
         /// </summary>
         public InputAction @ToggleLight => m_Wrapper.m_Player_ToggleLight;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/ToggleDoor".
+        /// </summary>
+        public InputAction @ToggleDoor => m_Wrapper.m_Player_ToggleDoor;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -247,6 +273,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ToggleLight.started += instance.OnToggleLight;
             @ToggleLight.performed += instance.OnToggleLight;
             @ToggleLight.canceled += instance.OnToggleLight;
+            @ToggleDoor.started += instance.OnToggleDoor;
+            @ToggleDoor.performed += instance.OnToggleDoor;
+            @ToggleDoor.canceled += instance.OnToggleDoor;
         }
 
         /// <summary>
@@ -261,6 +290,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ToggleLight.started -= instance.OnToggleLight;
             @ToggleLight.performed -= instance.OnToggleLight;
             @ToggleLight.canceled -= instance.OnToggleLight;
+            @ToggleDoor.started -= instance.OnToggleDoor;
+            @ToggleDoor.performed -= instance.OnToggleDoor;
+            @ToggleDoor.canceled -= instance.OnToggleDoor;
         }
 
         /// <summary>
@@ -308,5 +340,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleLight(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ToggleDoor" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnToggleDoor(InputAction.CallbackContext context);
     }
 }

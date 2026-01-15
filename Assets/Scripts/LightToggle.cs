@@ -39,6 +39,7 @@ public class LightToggle : MonoBehaviour
 
     private void Toggle()
     {
+        
         if(!playerInRange) return; //Only toggle if the player is in range
 
         //Toggle the light on and off
