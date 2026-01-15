@@ -4,7 +4,7 @@ public class RoomManager : MonoBehaviour
 {
 
     //stores a list of created rooms
-    public Room[] roomList;
+    public RoomSpawnInfo[] roomList;
 
     [SerializeField] private int currentRoom = 0;
 
@@ -40,7 +40,7 @@ public class RoomManager : MonoBehaviour
     //Spawns a particular type of room
     void SpawnRoomSpecific()
     {
-        Room roomToSpawn = roomList[currentRoom];
+        RoomSpawnInfo roomToSpawn = roomList[currentRoom];
         GameObject spawnedRoom =  Instantiate(roomToSpawn.roomInterior, roomSpawnLocation, roomSpawnRotation);
 
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 [System.Serializable]
 
-public class Room
+public class RoomSpawnInfo
 {
     public bool dangerous;
     public GameObject roomInterior;
