@@ -6,8 +6,9 @@ using System.Collections.Generic;
 
 public class RoomSpawnInfo
 {
-    public bool dangerous;
     public GameObject roomInterior;
+    public Light roomLight;
+
 
     public enum RoomDanger{
 

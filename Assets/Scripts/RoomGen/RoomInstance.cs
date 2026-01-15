@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class RoomInstance : MonoBehaviour
 {
-    
-    
-    
-    
-     
+
+    [Header("Room Fields")]
+    public bool dangerous = false;
+    public bool cleared = false;
+    public Light roomLight; 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {

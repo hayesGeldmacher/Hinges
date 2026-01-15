@@ -63,4 +63,10 @@ public class LightToggle : MonoBehaviour
             playerInRange = false;
         }
     }
+
+    //Allows roomManager to assign target light based on spawned room - HG
+    public void AssignLightTarget(Light target)
+    {
+        targetLight = target;
+    }
 }
