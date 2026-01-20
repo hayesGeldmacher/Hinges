@@ -22,6 +22,11 @@ public class LightToggle : MonoBehaviour
     void Start()
     {
         //Start with the light off
+        //targetLight.enabled = false;
+    }
+
+    public void DisableLightOnStart()
+    {
         targetLight.enabled = false;
     }
 
@@ -40,7 +45,7 @@ public class LightToggle : MonoBehaviour
     private void Toggle()
     {
         
-        if(!playerInRange) return; //Only toggle if the player is in range
+        //if(!playerInRange) return; //Only toggle if the player is in range
 
         //Toggle the light on and off
         isLightOn = !isLightOn;

@@ -944,10 +944,9 @@ GameObject:
   - component: {fileID: 637024692}
   - component: {fileID: 637024693}
   - component: {fileID: 637024694}
-  - component: {fileID: 637024695}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1004,37 +1003,6 @@ MonoBehaviour:
   minClearRotation: 5
   cleared: 0
   moveDirection: 0
---- !u!65 &637024695
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 637024691}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 11.342951, y: 6.1322403, z: 8.935049}
-  m_Center: {x: 1.0250187, y: 1.2048712, z: -0.3560524}
---- !u!1 &655427027 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3729969648502520815, guid: 04b3e27e5a0663d42b159de6330efbe8, type: 3}
-  m_PrefabInstance: {fileID: 1967491560711700050}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &744599286 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4196626929734120934, guid: 799685878d99b8247bc25acc88db5dcc, type: 3}
-  m_PrefabInstance: {fileID: 2692925916380343401}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &817129994
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18766,8 +18734,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RoomManager
   roomList:
-  - {fileID: 655427027}
-  - {fileID: 744599286}
+  - roomInterior: {fileID: 4196626929734120934, guid: 799685878d99b8247bc25acc88db5dcc, type: 3}
+  - roomInterior: {fileID: 3729969648502520815, guid: 04b3e27e5a0663d42b159de6330efbe8, type: 3}
   currentRoom: 0
   roomSpawnLocation: {fileID: 1479433257}
   lightToggle: {fileID: 637024693}
@@ -19253,7 +19221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4196626929734120934, guid: 799685878d99b8247bc25acc88db5dcc, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4496282345968058139, guid: 799685878d99b8247bc25acc88db5dcc, type: 3}
       propertyPath: m_Mesh

@@ -2,6 +2,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering.UI;
 using UnityEngine.InputSystem;
+using System.IO.Ports;
 
 public class DoorInput : MonoBehaviour
 {
@@ -57,7 +58,8 @@ public class DoorInput : MonoBehaviour
     //0 = still, -1 means closing, 1 means opening
     [SerializeField] private int moveDirection = 0;
 
-
+    //serial port for reading from rotator!
+    SerialPort arduinoport;
 
 
     private void OnEnable()
@@ -68,20 +70,32 @@ public class DoorInput : MonoBehaviour
     private void OnDisable()
     {
         InputActions.FindActionMap("Door").Disable();
+        arduinoport.Close();
     }
 
     void Start()
     {
 
-         OnDoorOpened += OpenDoor;
+       // System.IO.Ports.SerialPort.GetPortNames();
+
+
+        OnDoorOpened += OpenDoor;
          OnDoorClosed += CloseDoor;
 
+        arduinoport = new SerialPort("COM3", 9600);
+        arduinoport.Open();
 
     }
 
     // Update is called once per frame
     void Update()
     {
+
+
+            Debug.Log("Read " + arduinoport.ReadLine());
+      
+
+
 
         inputAxis = doorAction.ReadValue<float>();
         rotationValue += inputAxis;
