@@ -11,8 +11,9 @@ public class RoomManager : MonoBehaviour
     
     
     //stores a list of room spawn configurations+
-    public RoomSpawnInfo[] roomList;
-
+    //public RoomSpawnInfo[] roomList;
+    public GameObject[] roomList;
+ 
     [SerializeField] private int currentRoom = 0;
 
     [Header("Spawning Fields")]
@@ -66,9 +67,13 @@ public class RoomManager : MonoBehaviour
     //Spawns a particular type of room
     void SpawnRoomSpecific()
     {
-        RoomSpawnInfo roomToSpawn = roomList[currentRoom];
-        GameObject spawnedRoom =  Instantiate(roomToSpawn.roomInterior, roomSpawnLocation.position, Quaternion.identity);
-        lightToggle.AssignLightTarget(spawnedRoom.GetComponent<RoomInstance>().roomLight);
+        GameObject roomToSpawn = roomList[currentRoom];
+        roomToSpawn.SetActive(true);
+
+       // GameObject spawnedRoom =  Instantiate(roomToSpawn.roomInterior, roomSpawnLocation.position, Quaternion.identity);
+        lightToggle.AssignLightTarget(roomToSpawn.GetComponent<RoomInstance>().roomLight);
+        lightToggle.DisableLightOnStart();
+
 
         //when done spawning, increase current room count
         currentRoom++;
@@ -78,8 +83,7 @@ public class RoomManager : MonoBehaviour
         }
 
         //store this room in a variable for later deletion
-        activeRoom = spawnedRoom;
-
+        activeRoom = roomToSpawn;
 
         //finally, when room is fully ready, 'open curtains'
         OpenCurtains();
@@ -126,7 +130,7 @@ public class RoomManager : MonoBehaviour
     //called once a room is completed and the door has been closed
     void DeleteRoom(GameObject roomToDelete)
     {
-        Destroy(roomToDelete);
+        roomToDelete.SetActive(false);
     }
 
 }
