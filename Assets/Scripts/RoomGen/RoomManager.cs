@@ -27,6 +27,7 @@ public class RoomManager : MonoBehaviour
     [Header("Test Fields")]
     [SerializeField] GameObject doorOpened;
     [SerializeField] GameObject doorClosed;
+    [SerializeField] GameObject doorPeeking;
 
     [SerializeField] private GameObject activeRoom;
     [SerializeField] private bool roomOpen = false;
@@ -52,6 +53,7 @@ public class RoomManager : MonoBehaviour
         //Intializations
         DoorInput.instance.OnDoorOpened += DoorOpened;
         DoorInput.instance.OnDoorClosed += DoorClosed;
+        DoorInput.instance.OnDoorPeeked += DoorPeek;
         
         SpawnRoomSpecific();
     }
@@ -102,6 +104,16 @@ public class RoomManager : MonoBehaviour
     {
         roomOpen = true;
         doorOpened.SetActive(true);
+        doorPeeking.SetActive(false);
+        doorClosed.SetActive(false);
+        Debug.Log("Door is opened in RoomManager!");
+    }
+
+    void DoorPeek()
+    {
+        roomOpen = true;
+        doorOpened.SetActive(false);
+        doorPeeking.SetActive(true);
         doorClosed.SetActive(false);
         Debug.Log("Door is opened in RoomManager!");
     }
@@ -111,6 +123,7 @@ public class RoomManager : MonoBehaviour
     {
         roomOpen = false;
         doorOpened.SetActive(false);
+        doorPeeking.SetActive(false);
         doorClosed.SetActive(true);
 
         //spawn new room only if door has been cleared
@@ -129,6 +142,8 @@ public class RoomManager : MonoBehaviour
 
         Debug.Log("Door is closed in RoomManager!");
     }
+
+   
 
     //called once a room is completed and the door has been closed
     void DeleteRoom(GameObject roomToDelete)

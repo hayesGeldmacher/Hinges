@@ -11,6 +11,10 @@ public class DoorInput : MonoBehaviour
     private InputAction doorAction; //stores the rotation door input asset
     private PlayerControls controls; // Input action asset
 
+    [Header("Arduino Fields")]
+    public ArduinoEncoderReader encoder;
+
+
     //Singleton pattern to ensure only one DoorInput instance exists
     #region
     public static DoorInput instance;
@@ -39,19 +43,42 @@ public class DoorInput : MonoBehaviour
     public delegate void doorClosedDelegate();
     public doorClosedDelegate OnDoorClosed;
 
+    public delegate void doorPeekingDelegate();
+    public doorPeekingDelegate OnDoorPeeked;
+
     [Header("Rotation Fields")]
     //zero is calibrated to be the door at "closed position"
     [SerializeField] private float rotationValue = 0;
     //the rotation value from last frame
     [SerializeField] private float rotationValueLastFrame = 0;
+    //minimum rotation past zero to be considered "peeking"
+    [SerializeField] private float peekBuffer = 2f;
     //minimum rotation past zero to be considered "open"
-    [SerializeField] private float openBuffer = 0.5f;
+    [SerializeField] private float openBuffer = 6f;
     //maximum value that the door can be rotated - minimum is zero, so not tracking in variable!
     [SerializeField] private float maxRotation = 10;
-    //minimum value door needs to be opened to be considered "cleared"
-    [SerializeField] private float minClearRotation = 5;
     //bool tracking whether door has been cleared
     public bool cleared = false;
+
+    [Header("Clear Fields")]
+    [SerializeField] private float openTime = 0f;
+    [SerializeField] private float minClearTime = 5f;
+
+
+    //three possible door states: 
+    public enum DoorStatus 
+    { 
+        closed = 0,
+        peeking = 1,
+        half = 2,
+        open = 3
+
+    }
+    public DoorStatus status;
+    //open
+    //peeking
+    //closed
+
 
     [Header("Opened Fields")]
     //0 = still, -1 means closing, 1 means opening
@@ -62,55 +89,70 @@ public class DoorInput : MonoBehaviour
     private void OnEnable()
     {
         InputActions.FindActionMap("Door").Enable();
+
+        if (encoder != null)
+        {
+            // we can read the initial value of the encoder
+            Debug.Log("Binding Encoder Listener, Current Value: " + encoder.EncoderValue);
+
+            // you can subscribe a function when the encoder changes
+            encoder.OnEncoderChanged += HandleEncoder;
+        }
     }
 
     private void OnDisable()
     {
         InputActions.FindActionMap("Door").Disable();
+
+        if (encoder != null)
+        {
+            // unsubscribing the function
+            encoder.OnEncoderChanged -= HandleEncoder;
+        }
     }
 
     void Start()
     {
-
-
-
-        OnDoorOpened += OpenDoor;
-         OnDoorClosed += CloseDoor;
-
-
     }
 
-    // Update is called once per frame
-    void Update()
+    void HandleEncoder(int value)
     {
+        // in this example, this will print out whenever the encoder value changes
+        Debug.Log("Changed Encoder Value: " + value);
 
-
-      
-
-        inputAxis = doorAction.ReadValue<float>();
-        rotationValue += inputAxis;
-        //clamp the rotation of the door
-        rotationValue = Mathf.Clamp(rotationValue, 0, maxRotation);
+        rotationValue = value;
 
         //get the current status of the door
         opened = false;
         if (rotationValue >= openBuffer)
         {
-            opened = true;
-            if(rotationValue >= minClearRotation)
+            //check if door is fully opened first
+            if (rotationValue >= openBuffer)
             {
-                if (!cleared)
+               //if door is not already open, change to open state
+                if(status != DoorStatus.open)
                 {
-                    ClearDoor();
+                    ChangeDoorStatus(DoorStatus.open);
                 }
             }
         }
-
-        //if door status is changed, call toggle function
-        if(opened != openedLastFrame)
+        //if not fully open, check if door is peeking
+        else if(rotationValue >= peekBuffer)
         {
-            ToggleDoor();
+            //if door is not already peeking, change to peeking state
+            if(status != DoorStatus.peeking) 
+            {
+                ChangeDoorStatus(DoorStatus.peeking);
+            };
         }
+        else
+        {
+            if(status != DoorStatus.closed)
+            {
+                ChangeDoorStatus(DoorStatus.closed);
+            }
+        }
+
 
         //get the direction the door is moving
         if (rotationValue > rotationValueLastFrame)
@@ -128,11 +170,43 @@ public class DoorInput : MonoBehaviour
             //door is still
             moveDirection = 0;
         }
-        
-        //record the "last frame" status of the door position
-        rotationValueLastFrame = rotationValue;
-        openedLastFrame = opened;
 
+        rotationValueLastFrame = rotationValue;
+    }
+
+
+    private void Update()
+    {
+        if (status == DoorStatus.open)
+        {
+            openTime += Time.deltaTime;
+            if (openTime >= minClearTime)
+            {
+                ClearDoor();
+            }
+
+        }
+    }
+
+    private void ChangeDoorStatus(DoorStatus newStatus) {
+
+        
+        switch (newStatus) {
+
+            case DoorStatus.open:
+                //make door status open!
+                OpenDoor();
+                break;
+            case DoorStatus.peeking:
+                PeekDoor();
+                //make door status peeking!
+                break;
+            case DoorStatus.closed:
+                CloseDoor();
+                //make door status closed!
+                break;
+        
+        }
     }
 
     void ClearDoor()
@@ -141,29 +215,24 @@ public class DoorInput : MonoBehaviour
         Debug.Log("Cleared the door!");
     }
 
-    void ToggleDoor()
-    {
-        Debug.Log("Toggled the door");   
-        
-        if (opened)
-        {
-            OnDoorClosed?.Invoke();
-        }
-        else
-        {
-            OnDoorOpened?.Invoke();
-        }
-
-    }
 
     void OpenDoor()
     {
-        Debug.Log("Opened door from input");
+        status = DoorStatus.open;
+        OnDoorOpened?.Invoke();
     }
 
     void CloseDoor()
     {
-        Debug.Log("Closed door from input");
+        openTime = 0;
+        status = DoorStatus.closed;
+        OnDoorClosed?.Invoke();
+    }
+
+    void PeekDoor()
+    {
+        status = DoorStatus.peeking;
+        OnDoorPeeked?.Invoke();
     }
 
 
