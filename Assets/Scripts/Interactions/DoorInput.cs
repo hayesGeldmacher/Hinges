@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 
 public class DoorInput : MonoBehaviour
 {
+    //This script interfaces with the ArduinoCodeReader to translate rotary input to usable game input
+    
     [Header("Input Fields")]
     public InputActionAsset InputActions; //the asset our controls are bound to
     [SerializeField] private float inputAxis; //this float tracks door rotation input
@@ -12,7 +14,7 @@ public class DoorInput : MonoBehaviour
     private PlayerControls controls; // Input action asset
 
     [Header("Arduino Fields")]
-    public ArduinoEncoderReader encoder;
+    public ArduinoEncoderReader encoder; //the script that reads raw arduino data
 
 
     //Singleton pattern to ensure only one DoorInput instance exists
@@ -34,9 +36,8 @@ public class DoorInput : MonoBehaviour
     }
     #endregion
 
-    public bool opened = false;
-    public bool openedLastFrame = false;
-
+    //Delegates for door states, other scripts can subscribe to these
+    #region
     public delegate void doorOpenedDelegate();
     public doorOpenedDelegate OnDoorOpened;
 
@@ -45,24 +46,27 @@ public class DoorInput : MonoBehaviour
 
     public delegate void doorPeekingDelegate();
     public doorPeekingDelegate OnDoorPeeked;
+    #endregion
 
     [Header("Rotation Fields")]
     //zero is calibrated to be the door at "closed position"
     [SerializeField] private float rotationValue = 0;
     //the rotation value from last frame
     [SerializeField] private float rotationValueLastFrame = 0;
+    //tracks direction the door is rotating in - 0 = still, -1 = closing, 1 = opening
+    [SerializeField] private int moveDirection = 0;
     //minimum rotation past zero to be considered "peeking"
     [SerializeField] private float peekBuffer = 2f;
     //minimum rotation past zero to be considered "open"
     [SerializeField] private float openBuffer = 6f;
-    //maximum value that the door can be rotated - minimum is zero, so not tracking in variable!
-    [SerializeField] private float maxRotation = 10;
-    //bool tracking whether door has been cleared
-    public bool cleared = false;
 
     [Header("Clear Fields")]
+    //tracks how long the door has been open without closing
     [SerializeField] private float openTime = 0f;
+    //the minimum time the door has to be open in order to "clear" the room
     [SerializeField] private float minClearTime = 5f;
+    //bool tracking whether door has been cleared/finished
+    public bool cleared = false;
 
 
     //three possible door states: 
@@ -70,22 +74,13 @@ public class DoorInput : MonoBehaviour
     { 
         closed = 0,
         peeking = 1,
-        half = 2,
-        open = 3
+        open = 2
 
     }
     public DoorStatus status;
-    //open
-    //peeking
-    //closed
 
-
-    [Header("Opened Fields")]
-    //0 = still, -1 means closing, 1 means opening
-    [SerializeField] private int moveDirection = 0;
-
-
-
+    //on enable, subscribe to the encoder data
+    //also enable test keyboard inputs
     private void OnEnable()
     {
         InputActions.FindActionMap("Door").Enable();
@@ -100,6 +95,8 @@ public class DoorInput : MonoBehaviour
         }
     }
 
+    //on enable, unsubscribe to the encoder data
+    //also disable test keyboard inputs
     private void OnDisable()
     {
         InputActions.FindActionMap("Door").Disable();
@@ -111,10 +108,7 @@ public class DoorInput : MonoBehaviour
         }
     }
 
-    void Start()
-    {
-    }
-
+    //called whenever the encoder changes rotation
     void HandleEncoder(int value)
     {
         // in this example, this will print out whenever the encoder value changes
@@ -147,6 +141,7 @@ public class DoorInput : MonoBehaviour
         }
         else
         {
+            //if not already closed, change to closed state
             if(status != DoorStatus.closed)
             {
                 ChangeDoorStatus(DoorStatus.closed);
@@ -177,9 +172,12 @@ public class DoorInput : MonoBehaviour
 
     private void Update()
     {
+        //track how long the door is open
+        if (cleared) { return; }
         if (status == DoorStatus.open)
         {
             openTime += Time.deltaTime;
+            //once door open time reaches threshold, "clear" the room!
             if (openTime >= minClearTime)
             {
                 ClearDoor();
@@ -188,9 +186,9 @@ public class DoorInput : MonoBehaviour
         }
     }
 
+    //switch statement, called whenever door changes states
     private void ChangeDoorStatus(DoorStatus newStatus) {
 
-        
         switch (newStatus) {
 
             case DoorStatus.open:
@@ -205,16 +203,15 @@ public class DoorInput : MonoBehaviour
                 CloseDoor();
                 //make door status closed!
                 break;
-        
         }
     }
 
     void ClearDoor()
     {
         cleared = true;
+        RoomManager.instance.CallClearedRoom();
         Debug.Log("Cleared the door!");
     }
-
 
     void OpenDoor()
     {

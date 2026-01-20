@@ -32,6 +32,9 @@ public class RoomManager : MonoBehaviour
     [SerializeField] private GameObject activeRoom;
     [SerializeField] private bool roomOpen = false;
 
+    [Header("Audio Fields")]
+    [SerializeField] AudioSource dingSource;
+
     //Sets up singleton pattern so that any script can call to roomManager without reference
     #region Singleton
     public static RoomManager instance;
@@ -149,6 +152,11 @@ public class RoomManager : MonoBehaviour
     void DeleteRoom(GameObject roomToDelete)
     {
         roomToDelete.SetActive(false);
+    }
+
+    public void CallClearedRoom()
+    {
+        dingSource.Play();
     }
 
 }
