@@ -12,6 +12,11 @@ public class LightToggle : MonoBehaviour
     private bool playerInRange = false; // Flag to check if player is in range
     private bool isLightOn = true; // State of the light
 
+    //array of audio clips to be played when light is toggled
+    [SerializeField] private AudioClip[] clickAudioClips;
+    //audio source that above clips are played off
+    [SerializeField] private AudioSource clickAudioSource;
+
     void Awake()
     {
         //Initialize the input action
@@ -50,6 +55,21 @@ public class LightToggle : MonoBehaviour
         //Toggle the light on and off
         isLightOn = !isLightOn;
         targetLight.enabled = isLightOn;
+
+        //play audio
+        PlayAudioClip();
+    }
+
+    //added to play audio - HG
+    private void PlayAudioClip()
+    {
+        //assign a random audio clip 
+        AudioClip randomClip = clickAudioClips[Random.Range(0, clickAudioClips.Length)];
+        clickAudioSource.clip = randomClip;
+        //slightly randomize audio pitch
+        clickAudioSource.pitch = Random.Range(0.8f, 1.1f);
+        //play audio clip
+        clickAudioSource.Play();
     }
 
     private void OnTriggerEnter(Collider other)

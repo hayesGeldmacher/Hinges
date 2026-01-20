@@ -29,6 +29,7 @@ public class RoomManager : MonoBehaviour
     [SerializeField] GameObject doorClosed;
 
     [SerializeField] private GameObject activeRoom;
+    [SerializeField] private bool roomOpen = false;
 
     //Sets up singleton pattern so that any script can call to roomManager without reference
     #region Singleton
@@ -99,6 +100,7 @@ public class RoomManager : MonoBehaviour
     //called when the door is opened!
     void DoorOpened()
     {
+        roomOpen = true;
         doorOpened.SetActive(true);
         doorClosed.SetActive(false);
         Debug.Log("Door is opened in RoomManager!");
@@ -107,6 +109,7 @@ public class RoomManager : MonoBehaviour
     //called when the door is closed!
     void DoorClosed()
     {
+        roomOpen = false;
         doorOpened.SetActive(false);
         doorClosed.SetActive(true);
 
