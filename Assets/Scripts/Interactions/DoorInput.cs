@@ -68,6 +68,9 @@ public class DoorInput : MonoBehaviour
     //bool tracking whether door has been cleared/finished
     public bool cleared = false;
 
+    [Header("Audio Fields")]
+    [SerializeField] private AudioSource creakSource;
+    [SerializeField] private AudioClip[] creakClips;
 
     //three possible door states: 
     public enum DoorStatus 
@@ -117,7 +120,6 @@ public class DoorInput : MonoBehaviour
         rotationValue = value;
 
         //get the current status of the door
-        opened = false;
         if (rotationValue >= openBuffer)
         {
             //check if door is fully opened first
@@ -216,6 +218,7 @@ public class DoorInput : MonoBehaviour
     void OpenDoor()
     {
         status = DoorStatus.open;
+        PlayCreakSound();
         OnDoorOpened?.Invoke();
     }
 
@@ -232,5 +235,12 @@ public class DoorInput : MonoBehaviour
         OnDoorPeeked?.Invoke();
     }
 
+    private void PlayCreakSound()
+    {
+        AudioClip clip = creakClips[Random.Range(0, creakClips.Length)];
+        creakSource.clip = clip;
+        creakSource.pitch = Random.Range(0.8f, 1.1f);
+        creakSource.Play();
 
+    }
 }
