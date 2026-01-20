@@ -13,7 +13,9 @@ public class ArduinoEncoderReader : MonoBehaviour
     Thread readThread;
     bool running = false;
 
-    private volatile int encoderValue = 0;
+    private volatile int pendingValue = 0;
+    public int EncoderValue { get; private set; }
+    public event Action<int> OnEncoderChanged;
 
     private void Start()
     {
@@ -42,10 +44,7 @@ public class ArduinoEncoderReader : MonoBehaviour
                 string line = serialPort.ReadLine();
                 ParseLine(line);
             }
-            catch (Exception e)
-            {
-                Debug.LogError(e.Message);
-            }
+            catch (Exception) {  }
         }
     }
 
@@ -58,8 +57,16 @@ public class ArduinoEncoderReader : MonoBehaviour
 
         if (int.TryParse(parts[1], out int value))
         {
-            encoderValue = value;
-            Debug.Log("Encoder: " + encoderValue);
+            pendingValue = value;
+        }
+    }
+
+    private void Update()
+    {
+        if (EncoderValue != pendingValue)
+        {
+            EncoderValue = pendingValue;
+            OnEncoderChanged?.Invoke(EncoderValue);
         }
     }
 
