@@ -27,6 +27,8 @@ public class RoomManager : MonoBehaviour
     [SerializeField] GameObject doorOpened;
     [SerializeField] GameObject doorClosed;
 
+    [SerializeField] private GameObject activeRoom;
+
     //Sets up singleton pattern so that any script can call to roomManager without reference
     #region Singleton
     public static RoomManager instance;
@@ -70,6 +72,14 @@ public class RoomManager : MonoBehaviour
 
         //when done spawning, increase current room count
         currentRoom++;
+        if(currentRoom > roomList.Length - 1)
+        {
+            currentRoom = 0;
+        }
+
+        //store this room in a variable for later deletion
+        activeRoom = spawnedRoom;
+
 
         //finally, when room is fully ready, 'open curtains'
         OpenCurtains();
@@ -95,6 +105,21 @@ public class RoomManager : MonoBehaviour
     {
         doorOpened.SetActive(false);
         doorClosed.SetActive(true);
+
+        //spawn new room only if door has been cleared
+        if (DoorInput.instance.cleared)
+        {
+            Debug.Log("Deleted room!");
+
+            DoorInput.instance.cleared = false;
+
+            //delete current room
+            DeleteRoom(activeRoom);
+
+            SpawnRoomSpecific();
+
+        }
+
         Debug.Log("Door is closed in RoomManager!");
     }
 

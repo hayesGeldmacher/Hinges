@@ -7,7 +7,6 @@ using System.Collections.Generic;
 public class RoomSpawnInfo
 {
     public GameObject roomInterior;
-    public Light roomLight;
 
 
     public enum RoomDanger{
