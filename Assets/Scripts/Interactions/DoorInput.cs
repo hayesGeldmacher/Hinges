@@ -5,13 +5,21 @@ using UnityEngine.InputSystem;
 
 public class DoorInput : MonoBehaviour
 {
+    public InputActionAsset InputActions;
+    private PlayerControls controls; // Input action asset
+    public InputAction doorAction;
+    [SerializeField] private Vector2 inputVector;
 
     //Singleton pattern to ensure only one DoorInput instance exists
     #region
     public static DoorInput instance;
     private void Awake()
     {
-        if(instance != null)
+
+
+        doorAction = InputSystem.actions.FindAction("Door/Rotate");
+
+        if (instance != null)
         {
             Debug.LogWarning("More than once instance of DoorInput in scene!");
             return;
@@ -30,7 +38,30 @@ public class DoorInput : MonoBehaviour
     public delegate void doorClosedDelegate();
     public doorClosedDelegate OnDoorClosed;
 
-    private PlayerControls controls; // Input action asset
+    [Header("Input Fields")]
+    //zero is calibrated to be the door at "closed position"
+    [SerializeField] private float rotationValue = 0;
+    //the rotation value from last frame
+    [SerializeField] private float rotationValueLastFrame = 0;
+    //minimum rotation past zero to be considered "open"
+    [SerializeField] private float openBuffer = 0.5f;
+
+    [Header("Opened Fields")]
+    //0 = still, -1 means closing, 1 means opening
+    [SerializeField] private int moveDirection = 0;
+
+
+
+
+    private void OnEnable()
+    {
+        InputActions.FindActionMap("Door").Enable();
+    }
+
+    private void OnDisable()
+    {
+        InputActions.FindActionMap("Door").Disable();
+    }
 
     void Start()
     {
@@ -38,17 +69,49 @@ public class DoorInput : MonoBehaviour
          OnDoorOpened += OpenDoor;
          OnDoorClosed += CloseDoor;
 
-        controls = new PlayerControls();
-        //Bind the ToggleDoor action to the  method - not working, need to investigate why...
-        controls.Player.ToggleDoor.performed += ctx => ToggleDoor();
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        //pseudo code for this until we plug in rotary encoder
+        //rotationValue = rotaryValue;
+        inputVector = doorAction.ReadValue<Vector2>();
 
-        //here we collect data from the door input about whether it should be considered open
-        opened = openedLastFrame;
+        //get the current status of the door
+        opened = false;
+        if (rotationValue >= openBuffer)
+        {
+            opened = true;
+        }
+
+        //if door status is changed, call toggle function
+        if(opened != openedLastFrame)
+        {
+            ToggleDoor();
+        }
+
+        //get the direction the door is moving
+        if (rotationValue > rotationValueLastFrame)
+        {
+            //door is opening
+            moveDirection = 1;
+        }
+        else if (rotationValue < rotationValueLastFrame)
+        {
+            //door is closing
+            moveDirection = -1;
+        }
+        else
+        {
+            //door is still
+            moveDirection = 0;
+        }
+        
+        //record the "last frame" status of the door position
+        rotationValueLastFrame = rotationValue;
+        openedLastFrame = opened;
 
     }
 
@@ -58,25 +121,23 @@ public class DoorInput : MonoBehaviour
         Debug.Log("Toggled the door");   
         
         if (opened)
-            {
-                OnDoorClosed?.Invoke();
-            }
+        {
+            OnDoorClosed?.Invoke();
+        }
         else
-            {
-                OnDoorOpened?.Invoke();
-            }
+        {
+            OnDoorOpened?.Invoke();
+        }
 
     }
 
     void OpenDoor()
     {
-        opened = true;
         Debug.Log("Opened door from input");
     }
 
     void CloseDoor()
     {
-        opened = false;
         Debug.Log("Closed door from input");
     }
 

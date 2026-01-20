@@ -14,15 +14,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "ToggleDoor",
-                    "type": "Button",
-                    "id": "000aa5d0-81c0-430b-94bc-84613d45b2e9",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -36,17 +27,78 @@
                     "action": "ToggleLight",
                     "isComposite": false,
                     "isPartOfComposite": false
-                },
+                }
+            ]
+        },
+        {
+            "name": "Door",
+            "id": "bb3ff310-7c3c-445c-b61b-b51d8fd465c4",
+            "actions": [
                 {
-                    "name": "",
-                    "id": "48bae01e-b8bf-42f4-840f-15cc06149635",
-                    "path": "<Keyboard>/space",
+                    "name": "Rotate",
+                    "type": "Value",
+                    "id": "f34b14c1-7d3e-48ef-bc6b-749e2959ae54",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "2D Vector",
+                    "id": "d701c734-134d-4c16-a564-461e203d374f",
+                    "path": "2DVector",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ToggleDoor",
-                    "isComposite": false,
+                    "action": "Rotate",
+                    "isComposite": true,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "51c11996-b1b4-4f93-9d8b-88ba4af24639",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "84c87480-dad5-46aa-95af-fb850af35904",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "9c126a21-9b69-4adf-bec8-6cedce1026b5",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "a07816fe-57c4-48ad-9752-a55ace596d90",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Rotate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }

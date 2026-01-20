@@ -100,15 +100,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""ToggleDoor"",
-                    ""type"": ""Button"",
-                    ""id"": ""000aa5d0-81c0-430b-94bc-84613d45b2e9"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -122,17 +113,78 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""ToggleLight"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
+                }
+            ]
+        },
+        {
+            ""name"": ""Door"",
+            ""id"": ""bb3ff310-7c3c-445c-b61b-b51d8fd465c4"",
+            ""actions"": [
                 {
-                    ""name"": """",
-                    ""id"": ""48bae01e-b8bf-42f4-840f-15cc06149635"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""name"": ""Rotate"",
+                    ""type"": ""Value"",
+                    ""id"": ""f34b14c1-7d3e-48ef-bc6b-749e2959ae54"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""d701c734-134d-4c16-a564-461e203d374f"",
+                    ""path"": ""2DVector"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ToggleDoor"",
-                    ""isComposite"": false,
+                    ""action"": ""Rotate"",
+                    ""isComposite"": true,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""51c11996-b1b4-4f93-9d8b-88ba4af24639"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""84c87480-dad5-46aa-95af-fb850af35904"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""9c126a21-9b69-4adf-bec8-6cedce1026b5"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""a07816fe-57c4-48ad-9752-a55ace596d90"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rotate"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -142,12 +194,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_ToggleLight = m_Player.FindAction("ToggleLight", throwIfNotFound: true);
-        m_Player_ToggleDoor = m_Player.FindAction("ToggleDoor", throwIfNotFound: true);
+        // Door
+        m_Door = asset.FindActionMap("Door", throwIfNotFound: true);
+        m_Door_Rotate = m_Door.FindAction("Rotate", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
     {
         UnityEngine.Debug.Assert(!m_Player.enabled, "This will cause a leak and performance issues, PlayerControls.Player.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_Door.enabled, "This will cause a leak and performance issues, PlayerControls.Door.Disable() has not been called.");
     }
 
     /// <summary>
@@ -224,7 +279,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_ToggleLight;
-    private readonly InputAction m_Player_ToggleDoor;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -240,10 +294,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/ToggleLight".
         /// </summary>
         public InputAction @ToggleLight => m_Wrapper.m_Player_ToggleLight;
-        /// <summary>
-        /// Provides access to the underlying input action "Player/ToggleDoor".
-        /// </summary>
-        public InputAction @ToggleDoor => m_Wrapper.m_Player_ToggleDoor;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -273,9 +323,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ToggleLight.started += instance.OnToggleLight;
             @ToggleLight.performed += instance.OnToggleLight;
             @ToggleLight.canceled += instance.OnToggleLight;
-            @ToggleDoor.started += instance.OnToggleDoor;
-            @ToggleDoor.performed += instance.OnToggleDoor;
-            @ToggleDoor.canceled += instance.OnToggleDoor;
         }
 
         /// <summary>
@@ -290,9 +337,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ToggleLight.started -= instance.OnToggleLight;
             @ToggleLight.performed -= instance.OnToggleLight;
             @ToggleLight.canceled -= instance.OnToggleLight;
-            @ToggleDoor.started -= instance.OnToggleDoor;
-            @ToggleDoor.performed -= instance.OnToggleDoor;
-            @ToggleDoor.canceled -= instance.OnToggleDoor;
         }
 
         /// <summary>
@@ -326,6 +370,102 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="PlayerActions" /> instance referencing this action map.
     /// </summary>
     public PlayerActions @Player => new PlayerActions(this);
+
+    // Door
+    private readonly InputActionMap m_Door;
+    private List<IDoorActions> m_DoorActionsCallbackInterfaces = new List<IDoorActions>();
+    private readonly InputAction m_Door_Rotate;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "Door".
+    /// </summary>
+    public struct DoorActions
+    {
+        private @PlayerControls m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public DoorActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "Door/Rotate".
+        /// </summary>
+        public InputAction @Rotate => m_Wrapper.m_Door_Rotate;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_Door; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="DoorActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(DoorActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="DoorActions" />
+        public void AddCallbacks(IDoorActions instance)
+        {
+            if (instance == null || m_Wrapper.m_DoorActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_DoorActionsCallbackInterfaces.Add(instance);
+            @Rotate.started += instance.OnRotate;
+            @Rotate.performed += instance.OnRotate;
+            @Rotate.canceled += instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="DoorActions" />
+        private void UnregisterCallbacks(IDoorActions instance)
+        {
+            @Rotate.started -= instance.OnRotate;
+            @Rotate.performed -= instance.OnRotate;
+            @Rotate.canceled -= instance.OnRotate;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="DoorActions.UnregisterCallbacks(IDoorActions)" />.
+        /// </summary>
+        /// <seealso cref="DoorActions.UnregisterCallbacks(IDoorActions)" />
+        public void RemoveCallbacks(IDoorActions instance)
+        {
+            if (m_Wrapper.m_DoorActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="DoorActions.AddCallbacks(IDoorActions)" />
+        /// <seealso cref="DoorActions.RemoveCallbacks(IDoorActions)" />
+        /// <seealso cref="DoorActions.UnregisterCallbacks(IDoorActions)" />
+        public void SetCallbacks(IDoorActions instance)
+        {
+            foreach (var item in m_Wrapper.m_DoorActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_DoorActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="DoorActions" /> instance referencing this action map.
+    /// </summary>
+    public DoorActions @Door => new DoorActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Player" which allows adding and removing callbacks.
     /// </summary>
@@ -340,12 +480,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnToggleLight(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Door" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="DoorActions.AddCallbacks(IDoorActions)" />
+    /// <seealso cref="DoorActions.RemoveCallbacks(IDoorActions)" />
+    public interface IDoorActions
+    {
         /// <summary>
-        /// Method invoked when associated input action "ToggleDoor" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnToggleDoor(InputAction.CallbackContext context);
+        void OnRotate(InputAction.CallbackContext context);
     }
 }
