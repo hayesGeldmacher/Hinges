@@ -59,6 +59,10 @@ public class DoorInput : MonoBehaviour
     [SerializeField] private int rotationValueLastFrame = 0;
     //tracks direction the door is rotating in - 0 = still, -1 = closing, 1 = opening
     [SerializeField] private int moveDirection = 0;
+    //tracks the distance covered when rotating the door
+    [SerializeField] private int moveDistance = 0;
+    //minimum distance moved for the door to be "slammed"
+    [SerializeField] private int doorSlammedDistance = 4;
     //minimum rotation past zero to be considered "peeking"
     [SerializeField] private int peekBuffer = 2;
     //minimum rotation past zero to be considered "open"
@@ -79,6 +83,9 @@ public class DoorInput : MonoBehaviour
     //Audio player + clips for the door shutting closed
     [SerializeField] private AudioSource shutSource;
     [SerializeField] private AudioClip[] shutClips;
+    //Audio clips for the door slamming closed 
+    //shares audio player with shutting sound, as they will never be played at same time
+    [SerializeField] private AudioClip[] slamClips;
 
 
     //three possible door states: 
@@ -130,6 +137,26 @@ public class DoorInput : MonoBehaviour
 
         rotationValue = value;
 
+        moveDistance = rotationValue - rotationValueLastFrame;
+
+        //get the direction the door is moving
+        if (rotationValue > rotationValueLastFrame)
+        {
+            //door is opening
+            moveDirection = 1;
+        }
+        else if (rotationValue < rotationValueLastFrame)
+        {
+            //door is closing
+            moveDirection = -1;
+        }
+        else
+        {
+            //door is still
+            moveDirection = 0;
+        }
+
+
         //get the current status of the door
         if (rotationValue >= openBuffer)
         {
@@ -160,29 +187,8 @@ public class DoorInput : MonoBehaviour
                 ChangeDoorStatus(DoorStatus.closed);
             }
         }
-
-
-        //get the direction the door is moving
-        if (rotationValue > rotationValueLastFrame)
-        {
-            //door is opening
-            moveDirection = 1;
-        }
-        else if (rotationValue < rotationValueLastFrame)
-        {
-            //door is closing
-            moveDirection = -1;
-        }
-        else
-        {
-            //door is still
-            moveDirection = 0;
-        }
-
         rotationValueLastFrame = rotationValue;
     }
-
-    
 
     private void Update()
     {
@@ -206,17 +212,26 @@ public class DoorInput : MonoBehaviour
     //update function just for debug keyboard testing
     private void KeyboardUpdate()
     {
+        int InputValue = 0;
+
         //if pressing A, close the door
         if (Input.GetKeyDown(KeyCode.A))
         {
-            int InputValue = -1 * debugSensitivity + rotationValue;
-            InputValue = Mathf.Clamp(InputValue, 0, openBuffer);
-            HandleEncoder(InputValue);
+            InputValue = -1 * debugSensitivity + rotationValue;
         }
         //if pressing D, open the door
         else if (Input.GetKeyDown(KeyCode.D))
         {
-            int InputValue = 1 * debugSensitivity + rotationValue;
+            InputValue = 1 * debugSensitivity + rotationValue;
+        }
+        //if pressing W, slam the door!
+        else if (Input.GetKeyDown(KeyCode.W))
+        {
+            InputValue = -4 * debugSensitivity + rotationValue;
+        }
+        
+        if(Mathf.Abs(InputValue) > 0)
+        {
             InputValue = Mathf.Clamp(InputValue, 0, openBuffer);
             HandleEncoder(InputValue);
         }
@@ -267,7 +282,14 @@ public class DoorInput : MonoBehaviour
     void CloseDoor()
     {
         openTime = 0;
-        PlaySound(false);
+        if (Mathf.Abs(moveDistance) >= doorSlammedDistance)
+        {
+            PlaySound(2);
+        }
+        else
+        {
+            PlaySound(1);
+        }
         status = DoorStatus.closed;
         OnDoorClosed?.Invoke();
     }
@@ -278,45 +300,61 @@ public class DoorInput : MonoBehaviour
         //only play creaking sound if we are opening the door to a creak
         if (opening)
         {
-            PlaySound(true);
+            PlaySound(0);
         }
         OnDoorPeeked?.Invoke();
     }
 
     //play audio effect for door shutting or creaking open
-    private void PlaySound(bool creak)
+    private void PlaySound(int SoundCategory)
     {
-
         AudioSource source;
         AudioClip clip;
 
-        //play door creaking sound
-        if (creak)
+        if (creakClips.Length > 0)
         {
-            if (creakClips.Length > 0)
-            {
-                source = creakSource;
-                clip = creakClips[Random.Range(0, creakClips.Length)];
-            }
-            else
-            {
-                Debug.LogWarning("No audio clips included for door creaking sound!");
-                return;
-            }
+            source = creakSource;
+            clip = creakClips[Random.Range(0, creakClips.Length)];
         }
-        //play door shutting sound
         else
         {
-            if(shutClips.Length > 0)
-            {
-                source = shutSource;
-                clip = shutClips[Random.Range(0, shutClips.Length)];
-            }
-            else
-            {
-                Debug.LogWarning("No audio clips included for door shutting sound!");
-                return;
-            }
+            Debug.LogWarning("No audio clips included for door creaking sound!");
+            return;
+        }
+
+        switch (SoundCategory)
+        {
+            case (0):
+                //already assigned creak above, nothing to do here
+                break;
+            case (1):
+                if (shutClips.Length > 0)
+                {
+                    source = shutSource;
+                    clip = shutClips[Random.Range(0, shutClips.Length)];
+                }
+                else
+                {
+                    Debug.LogWarning("No audio clips included for door shutting sound!");
+                    return;
+                }
+                break;
+            case (2):
+                if (slamClips.Length > 0)
+                {
+                    source = shutSource;
+                    clip = slamClips[Random.Range(0, slamClips.Length)];
+                }
+                else
+                {
+                    Debug.LogWarning("No audio clips included for door slamming sound!");
+                    return;
+                }
+                break;
+            default:
+                //already assigned creak above, nothing to do here
+                break;
+
         }
 
         source.clip = clip;

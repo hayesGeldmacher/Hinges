@@ -1022,6 +1022,8 @@ MonoBehaviour:
   rotationValue: 0
   rotationValueLastFrame: 0
   moveDirection: 0
+  moveDistance: 0
+  doorSlammedDistance: 4
   peekBuffer: 2
   openBuffer: 6
   openTime: 0
@@ -1034,6 +1036,12 @@ MonoBehaviour:
   shutSource: {fileID: 970769875}
   shutClips:
   - {fileID: 8300000, guid: 44f0233d346a8d5478ea73ed51a8ca64, type: 3}
+  - {fileID: 8300000, guid: 8a062d9dc8cfcc44ea2a7c0ea6b62441, type: 3}
+  - {fileID: 8300000, guid: 2e531b77df34d3d459b636f5c5f3e0c5, type: 3}
+  - {fileID: 8300000, guid: 0341ce51392df714a94935894529d49b, type: 3}
+  slamClips:
+  - {fileID: 8300000, guid: c10082e54ea646c4eb207a22b29d6259, type: 3}
+  - {fileID: 8300000, guid: fa97dbfa7703a7b4fa0e76afe4bcc5d8, type: 3}
   status: 0
 --- !u!65 &637024695
 BoxCollider:
