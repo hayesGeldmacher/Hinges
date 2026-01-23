@@ -73,8 +73,12 @@ public class DoorInput : MonoBehaviour
     public bool cleared = false;
 
     [Header("Audio Fields")]
+    //Audio player + clips for the door creaking open
     [SerializeField] private AudioSource creakSource;
     [SerializeField] private AudioClip[] creakClips;
+    //Audio player + clips for the door shutting closed
+    [SerializeField] private AudioSource shutSource;
+    [SerializeField] private AudioClip[] shutClips;
 
 
     //three possible door states: 
@@ -86,6 +90,7 @@ public class DoorInput : MonoBehaviour
 
     }
     public DoorStatus status;
+    private DoorStatus previousStatus;
 
     //on enable, subscribe to the encoder data
     //also enable test keyboard inputs
@@ -227,14 +232,23 @@ public class DoorInput : MonoBehaviour
                 OpenDoor();
                 break;
             case DoorStatus.peeking:
-                PeekDoor();
-                //make door status peeking!
-                break;
+                if(previousStatus == DoorStatus.open)
+                {
+                    PeekDoor(false);
+                }
+                else
+                {
+                    PeekDoor(true);
+                }
+                    //make door status peeking!
+                    break;
             case DoorStatus.closed:
                 CloseDoor();
                 //make door status closed!
                 break;
         }
+
+        previousStatus = status;
     }
 
     void ClearDoor()
@@ -247,35 +261,67 @@ public class DoorInput : MonoBehaviour
     void OpenDoor()
     {
         status = DoorStatus.open;
-        PlayCreakSound();
         OnDoorOpened?.Invoke();
     }
 
     void CloseDoor()
     {
         openTime = 0;
+        PlaySound(false);
         status = DoorStatus.closed;
         OnDoorClosed?.Invoke();
     }
 
-    void PeekDoor()
+    void PeekDoor(bool opening)
     {
         status = DoorStatus.peeking;
+        //only play creaking sound if we are opening the door to a creak
+        if (opening)
+        {
+            PlaySound(true);
+        }
         OnDoorPeeked?.Invoke();
     }
 
-    private void PlayCreakSound()
+    //play audio effect for door shutting or creaking open
+    private void PlaySound(bool creak)
     {
-        if (creakClips != null)
+
+        AudioSource source;
+        AudioClip clip;
+
+        //play door creaking sound
+        if (creak)
         {
-            AudioClip clip = creakClips[Random.Range(0, creakClips.Length)];
-            creakSource.clip = clip;
-            creakSource.pitch = Random.Range(0.8f, 1.1f);
-            creakSource.Play();
+            if (creakClips.Length > 0)
+            {
+                source = creakSource;
+                clip = creakClips[Random.Range(0, creakClips.Length)];
+            }
+            else
+            {
+                Debug.LogWarning("No audio clips included for door creaking sound!");
+                return;
+            }
         }
+        //play door shutting sound
         else
         {
-            Debug.LogWarning("No audio clips included for door creeking sound!");
+            if(shutClips.Length > 0)
+            {
+                source = shutSource;
+                clip = shutClips[Random.Range(0, shutClips.Length)];
+            }
+            else
+            {
+                Debug.LogWarning("No audio clips included for door shutting sound!");
+                return;
+            }
         }
+
+        source.clip = clip;
+        source.pitch = Random.Range(0.8f, 1f);
+        source.Play();
+
     }
 }
