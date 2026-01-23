@@ -7,11 +7,14 @@ public class DoorInput : MonoBehaviour
 {
     //This script interfaces with the ArduinoCodeReader to translate rotary input to usable game input
     
-    [Header("Input Fields")]
+    [Header("Debug Input Fields")]
     public InputActionAsset InputActions; //the asset our controls are bound to
-    [SerializeField] private float inputAxis; //this float tracks door rotation input
-    private InputAction doorAction; //stores the rotation door input asset
     private PlayerControls controls; // Input action asset
+    private InputAction doorOpenAction; //stores the rotate open input asset
+    private InputAction doorCloseAction; //stores the rotate close input asset
+    [SerializeField] private float inputAxis; //this float tracks door rotation input
+    [SerializeField] private bool useKeyboard = false;
+    [SerializeField] private int debugSensitivity = 1;
 
     [Header("Arduino Fields")]
     public ArduinoEncoderReader encoder; //the script that reads raw arduino data
@@ -24,7 +27,8 @@ public class DoorInput : MonoBehaviour
     {
 
 
-        doorAction = InputSystem.actions.FindAction("Door/Rotate");
+        doorOpenAction = InputSystem.actions.FindAction("Door/RotateOpen");
+        doorCloseAction = InputSystem.actions.FindAction("Door/RotateClose");
 
         if (instance != null)
         {
@@ -50,15 +54,15 @@ public class DoorInput : MonoBehaviour
 
     [Header("Rotation Fields")]
     //zero is calibrated to be the door at "closed position"
-    [SerializeField] private float rotationValue = 0;
+    [SerializeField] private int rotationValue = 0;
     //the rotation value from last frame
-    [SerializeField] private float rotationValueLastFrame = 0;
+    [SerializeField] private int rotationValueLastFrame = 0;
     //tracks direction the door is rotating in - 0 = still, -1 = closing, 1 = opening
     [SerializeField] private int moveDirection = 0;
     //minimum rotation past zero to be considered "peeking"
-    [SerializeField] private float peekBuffer = 2f;
+    [SerializeField] private int peekBuffer = 2;
     //minimum rotation past zero to be considered "open"
-    [SerializeField] private float openBuffer = 6f;
+    [SerializeField] private int openBuffer = 6;
 
     [Header("Clear Fields")]
     //tracks how long the door has been open without closing
@@ -71,6 +75,7 @@ public class DoorInput : MonoBehaviour
     [Header("Audio Fields")]
     [SerializeField] private AudioSource creakSource;
     [SerializeField] private AudioClip[] creakClips;
+
 
     //three possible door states: 
     public enum DoorStatus 
@@ -114,6 +119,7 @@ public class DoorInput : MonoBehaviour
     //called whenever the encoder changes rotation
     void HandleEncoder(int value)
     {
+       
         // in this example, this will print out whenever the encoder value changes
         Debug.Log("Changed Encoder Value: " + value);
 
@@ -171,12 +177,13 @@ public class DoorInput : MonoBehaviour
         rotationValueLastFrame = rotationValue;
     }
 
+    
 
     private void Update()
     {
+        
         //track how long the door is open
-        if (cleared) { return; }
-        if (status == DoorStatus.open)
+        if (status == DoorStatus.open && !cleared)
         {
             openTime += Time.deltaTime;
             //once door open time reaches threshold, "clear" the room!
@@ -184,7 +191,29 @@ public class DoorInput : MonoBehaviour
             {
                 ClearDoor();
             }
+        }
 
+        //below - keyboard controls for debug testing, not important for game functionality
+        if (useKeyboard) { KeyboardUpdate(); }
+
+    }
+
+    //update function just for debug keyboard testing
+    private void KeyboardUpdate()
+    {
+        //if pressing A, close the door
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            int InputValue = -1 * debugSensitivity + rotationValue;
+            InputValue = Mathf.Clamp(InputValue, 0, openBuffer);
+            HandleEncoder(InputValue);
+        }
+        //if pressing D, open the door
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            int InputValue = 1 * debugSensitivity + rotationValue;
+            InputValue = Mathf.Clamp(InputValue, 0, openBuffer);
+            HandleEncoder(InputValue);
         }
     }
 
@@ -237,10 +266,16 @@ public class DoorInput : MonoBehaviour
 
     private void PlayCreakSound()
     {
-        AudioClip clip = creakClips[Random.Range(0, creakClips.Length)];
-        creakSource.clip = clip;
-        creakSource.pitch = Random.Range(0.8f, 1.1f);
-        creakSource.Play();
-
+        if (creakClips != null)
+        {
+            AudioClip clip = creakClips[Random.Range(0, creakClips.Length)];
+            creakSource.clip = clip;
+            creakSource.pitch = Random.Range(0.8f, 1.1f);
+            creakSource.Play();
+        }
+        else
+        {
+            Debug.LogWarning("No audio clips included for door creeking sound!");
+        }
     }
 }

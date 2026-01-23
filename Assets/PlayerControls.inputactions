@@ -35,48 +35,46 @@
             "id": "bb3ff310-7c3c-445c-b61b-b51d8fd465c4",
             "actions": [
                 {
-                    "name": "Rotate",
-                    "type": "Value",
-                    "id": "f34b14c1-7d3e-48ef-bc6b-749e2959ae54",
-                    "expectedControlType": "Axis",
+                    "name": "RotateOpen",
+                    "type": "Button",
+                    "id": "1e0beece-4683-4325-87d3-91529cd73ebd",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": true
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "RotateClose",
+                    "type": "Button",
+                    "id": "19dbcdfd-2a05-4ecd-8610-156d540770ea",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
                 {
-                    "name": "1D Axis",
-                    "id": "d701c734-134d-4c16-a564-461e203d374f",
-                    "path": "1DAxis",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate",
-                    "isComposite": true,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "Negative",
-                    "id": "51c11996-b1b4-4f93-9d8b-88ba4af24639",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Rotate",
-                    "isComposite": false,
-                    "isPartOfComposite": true
-                },
-                {
-                    "name": "Positive",
-                    "id": "84c87480-dad5-46aa-95af-fb850af35904",
+                    "name": "",
+                    "id": "c5bca94f-5be4-4169-9844-e1a544404a6d",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "RotateOpen",
                     "isComposite": false,
-                    "isPartOfComposite": true
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "03db2780-e531-4085-9d62-e388d873582f",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RotateClose",
+                    "isComposite": false,
+                    "isPartOfComposite": false
                 }
             ]
         }

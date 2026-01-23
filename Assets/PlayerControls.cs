@@ -121,48 +121,46 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""id"": ""bb3ff310-7c3c-445c-b61b-b51d8fd465c4"",
             ""actions"": [
                 {
-                    ""name"": ""Rotate"",
-                    ""type"": ""Value"",
-                    ""id"": ""f34b14c1-7d3e-48ef-bc6b-749e2959ae54"",
-                    ""expectedControlType"": ""Axis"",
+                    ""name"": ""RotateOpen"",
+                    ""type"": ""Button"",
+                    ""id"": ""1e0beece-4683-4325-87d3-91529cd73ebd"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": true
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""RotateClose"",
+                    ""type"": ""Button"",
+                    ""id"": ""19dbcdfd-2a05-4ecd-8610-156d540770ea"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": ""1D Axis"",
-                    ""id"": ""d701c734-134d-4c16-a564-461e203d374f"",
-                    ""path"": ""1DAxis"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Rotate"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""Negative"",
-                    ""id"": ""51c11996-b1b4-4f93-9d8b-88ba4af24639"",
-                    ""path"": ""<Keyboard>/a"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Rotate"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""Positive"",
-                    ""id"": ""84c87480-dad5-46aa-95af-fb850af35904"",
+                    ""name"": """",
+                    ""id"": ""c5bca94f-5be4-4169-9844-e1a544404a6d"",
                     ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Rotate"",
+                    ""action"": ""RotateOpen"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": true
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""03db2780-e531-4085-9d62-e388d873582f"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""RotateClose"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -174,7 +172,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Player_ToggleLight = m_Player.FindAction("ToggleLight", throwIfNotFound: true);
         // Door
         m_Door = asset.FindActionMap("Door", throwIfNotFound: true);
-        m_Door_Rotate = m_Door.FindAction("Rotate", throwIfNotFound: true);
+        m_Door_RotateOpen = m_Door.FindAction("RotateOpen", throwIfNotFound: true);
+        m_Door_RotateClose = m_Door.FindAction("RotateClose", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -352,7 +351,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     // Door
     private readonly InputActionMap m_Door;
     private List<IDoorActions> m_DoorActionsCallbackInterfaces = new List<IDoorActions>();
-    private readonly InputAction m_Door_Rotate;
+    private readonly InputAction m_Door_RotateOpen;
+    private readonly InputAction m_Door_RotateClose;
     /// <summary>
     /// Provides access to input actions defined in input action map "Door".
     /// </summary>
@@ -365,9 +365,13 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public DoorActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "Door/Rotate".
+        /// Provides access to the underlying input action "Door/RotateOpen".
         /// </summary>
-        public InputAction @Rotate => m_Wrapper.m_Door_Rotate;
+        public InputAction @RotateOpen => m_Wrapper.m_Door_RotateOpen;
+        /// <summary>
+        /// Provides access to the underlying input action "Door/RotateClose".
+        /// </summary>
+        public InputAction @RotateClose => m_Wrapper.m_Door_RotateClose;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -394,9 +398,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         {
             if (instance == null || m_Wrapper.m_DoorActionsCallbackInterfaces.Contains(instance)) return;
             m_Wrapper.m_DoorActionsCallbackInterfaces.Add(instance);
-            @Rotate.started += instance.OnRotate;
-            @Rotate.performed += instance.OnRotate;
-            @Rotate.canceled += instance.OnRotate;
+            @RotateOpen.started += instance.OnRotateOpen;
+            @RotateOpen.performed += instance.OnRotateOpen;
+            @RotateOpen.canceled += instance.OnRotateOpen;
+            @RotateClose.started += instance.OnRotateClose;
+            @RotateClose.performed += instance.OnRotateClose;
+            @RotateClose.canceled += instance.OnRotateClose;
         }
 
         /// <summary>
@@ -408,9 +415,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="DoorActions" />
         private void UnregisterCallbacks(IDoorActions instance)
         {
-            @Rotate.started -= instance.OnRotate;
-            @Rotate.performed -= instance.OnRotate;
-            @Rotate.canceled -= instance.OnRotate;
+            @RotateOpen.started -= instance.OnRotateOpen;
+            @RotateOpen.performed -= instance.OnRotateOpen;
+            @RotateOpen.canceled -= instance.OnRotateOpen;
+            @RotateClose.started -= instance.OnRotateClose;
+            @RotateClose.performed -= instance.OnRotateClose;
+            @RotateClose.canceled -= instance.OnRotateClose;
         }
 
         /// <summary>
@@ -467,11 +477,18 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     public interface IDoorActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Rotate" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "RotateOpen" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRotate(InputAction.CallbackContext context);
+        void OnRotateOpen(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "RotateClose" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRotateClose(InputAction.CallbackContext context);
     }
 }

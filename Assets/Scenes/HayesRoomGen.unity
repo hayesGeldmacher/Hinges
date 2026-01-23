@@ -1016,19 +1016,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorInput
   InputActions: {fileID: -944628639613478452, guid: 7cd11b573263e50438158421da54d4f2, type: 3}
   inputAxis: 0
+  useKeyboard: 1
+  debugSensitivity: 4
   encoder: {fileID: 637024697}
-  opened: 0
-  openedLastFrame: 0
   rotationValue: 0
   rotationValueLastFrame: 0
-  peekBuffer: 6
-  openBuffer: 12
-  maxRotation: 10
-  cleared: 0
+  moveDirection: 0
+  peekBuffer: 2
+  openBuffer: 6
   openTime: 0
   minClearTime: 5
+  cleared: 0
+  creakSource: {fileID: 0}
+  creakClips: []
   status: 0
-  moveDirection: 0
 --- !u!65 &637024695
 BoxCollider:
   m_ObjectHideFlags: 0
