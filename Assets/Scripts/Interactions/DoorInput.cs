@@ -187,6 +187,13 @@ public class DoorInput : MonoBehaviour
                 ChangeDoorStatus(DoorStatus.closed);
             }
         }
+        
+    }
+
+    private void LateUpdate()
+    {
+        //get this value late in update, allows us to check how fast door has moved
+        //if we tracked this value in handleEncoder, we would never be able to "skip" rotations for fast movement
         rotationValueLastFrame = rotationValue;
     }
 
@@ -255,12 +262,23 @@ public class DoorInput : MonoBehaviour
                 {
                     PeekDoor(true);
                 }
-                    //make door status peeking!
-                    break;
+                //make door status peeking!
+                break;
             case DoorStatus.closed:
-                CloseDoor();
+                //both slam and close will set status to closed along with unique effects
+                //check can only slam if its moved enough distance AND was fully open
+                if(Mathf.Abs(moveDistance) >= doorSlammedDistance && status == DoorStatus.open)
+                {
+                    SlamDoor();
+                }
+                else
+                {
+                  CloseDoor();
+                }
                 //make door status closed!
                 break;
+
+
         }
 
         previousStatus = status;
@@ -282,14 +300,15 @@ public class DoorInput : MonoBehaviour
     void CloseDoor()
     {
         openTime = 0;
-        if (Mathf.Abs(moveDistance) >= doorSlammedDistance)
-        {
-            PlaySound(2);
-        }
-        else
-        {
-            PlaySound(1);
-        }
+        PlaySound(1);
+        status = DoorStatus.closed;
+        OnDoorClosed?.Invoke();
+    }
+
+    void SlamDoor()
+    {
+        openTime = 0;
+        PlaySound(2);
         status = DoorStatus.closed;
         OnDoorClosed?.Invoke();
     }
