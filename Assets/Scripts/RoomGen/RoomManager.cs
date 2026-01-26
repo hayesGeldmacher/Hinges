@@ -91,6 +91,21 @@ public class RoomManager : MonoBehaviour
         //store this room in a variable for later deletion
         activeRoom = roomToSpawn;
 
+        var inst = activeRoom.GetComponent<RoomInstance>();
+        var monster = FindFirstObjectByType<Monster>();
+
+        if (monster != null && inst != null)
+        {
+            monster.AssignRoomAnchors(
+                activeRoom,
+                inst.roomLight,
+                inst.monsterFar,
+                inst.monsterNear,
+                inst.monsterDoor
+            );
+        }
+
+
         //finally, when room is fully ready, 'open curtains'
         OpenCurtains();
 

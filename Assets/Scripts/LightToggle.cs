@@ -9,7 +9,6 @@ public class LightToggle : MonoBehaviour
 
     //Private References
     private PlayerControls controls; // Input action asset
-    private bool playerInRange = false; // Flag to check if player is in range
     private bool isLightOn = true; // State of the light
 
     //array of audio clips to be played when light is toggled
@@ -23,11 +22,6 @@ public class LightToggle : MonoBehaviour
         controls = new PlayerControls();
         //Bind the ToggleLight action to the Toggle method
         controls.Player.ToggleLight.performed += ctx => Toggle();
-    }
-    void Start()
-    {
-        //Start with the light off
-        //targetLight.enabled = false;
     }
 
     public void DisableLightOnStart()
@@ -70,24 +64,6 @@ public class LightToggle : MonoBehaviour
         clickAudioSource.pitch = Random.Range(0.8f, 1.1f);
         //play audio clip
         clickAudioSource.Play();
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("Player in light toggle zone.");
-        //Check if the player entered the trigger zone
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = true;
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        //Check if the player exited the trigger zone
-        if (other.CompareTag("Player"))
-        {
-            playerInRange = false;
-        }
     }
 
     //Allows roomManager to assign target light based on spawned room - HG
