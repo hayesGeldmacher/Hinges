@@ -5,6 +5,13 @@ using System.Collections;
 
 public class Monster : MonoBehaviour
 {
+    /// <summary>
+    ///This monster approaches the player in stages based on mistakes made
+    /// /(Mistakes include holding the light on too long(flashing is ok), and keeping the door open if they are too close.
+    /// If the monster gets too close and the player makes a mistake then a jumpscare is triggered) 
+    /// </summary>
+
+
     public enum Stage { None = -1, Far = 0, Near = 1, Door = 2, Jumpscare = 3 }
 
     [Header("References")]
@@ -19,6 +26,7 @@ public class Monster : MonoBehaviour
     private float offTime = 0.08f;
     public float delayBeforeGameOver = 0.25f;
     private int flashCount = 3;
+    public AudioSource jumpscareAudio;
 
     [Header("Room Positions")]
     public Transform farPoint;
@@ -329,15 +337,21 @@ public class Monster : MonoBehaviour
 
                 jumpscareFlash.gameObject.SetActive(false);
                 yield return new WaitForSeconds(offTime);
+
+                // Play jumpscare sound on first flash
+                if (i == 0 && jumpscareAudio != null)
+                {
+                    jumpscareAudio.Play();
+                }
             }
-        }
 
-        yield return new WaitForSeconds(delayBeforeGameOver);
+            yield return new WaitForSeconds(delayBeforeGameOver);
 
-        if (gameOverUI != null)
-        {
-            gameOverUI.SetActive(true);
+            if (gameOverUI != null)
+            {
+                gameOverUI.SetActive(true);
 
+            }
         }
     }
 }
