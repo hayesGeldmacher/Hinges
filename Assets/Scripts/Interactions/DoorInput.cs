@@ -18,8 +18,8 @@ public class DoorInput : MonoBehaviour
 
     [Header("Arduino Fields")]
     public ArduinoEncoderReader encoder; //the script that reads raw arduino data
-
-
+    public ArduinoDistanceReader reader; //this script reads the raw sensor data. 
+    public bool useRotator = false;
     //Singleton pattern to ensure only one DoorInput instance exists
     #region
     public static DoorInput instance;
@@ -111,7 +111,15 @@ public class DoorInput : MonoBehaviour
             Debug.Log("Binding Encoder Listener, Current Value: " + encoder.EncoderValue);
 
             // you can subscribe a function when the encoder changes
-            encoder.OnEncoderChanged += HandleEncoder;
+            if (useRotator)
+            {
+                encoder.OnEncoderChanged += HandleEncoder;
+            }
+            else
+            {
+                reader.OnEncoderChanged += HandleEncoder;
+
+            }
         }
     }
 
@@ -124,7 +132,14 @@ public class DoorInput : MonoBehaviour
         if (encoder != null)
         {
             // unsubscribing the function
-            encoder.OnEncoderChanged -= HandleEncoder;
+            if (useRotator)
+            {
+                encoder.OnEncoderChanged -= HandleEncoder;
+            }
+            else
+            {
+                reader.OnEncoderChanged -= HandleEncoder;
+            }
         }
     }
 

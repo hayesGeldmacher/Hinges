@@ -975,7 +975,8 @@ GameObject:
   m_Component:
   - component: {fileID: 637024692}
   - component: {fileID: 637024694}
-  - component: {fileID: 637024697}
+  - component: {fileID: 637024699}
+  - component: {fileID: 637024698}
   - component: {fileID: 637024695}
   - component: {fileID: 637024696}
   m_Layer: 0
@@ -1018,7 +1019,9 @@ MonoBehaviour:
   inputAxis: 0
   useKeyboard: 1
   debugSensitivity: 4
-  encoder: {fileID: 637024697}
+  encoder: {fileID: 637024699}
+  reader: {fileID: 637024698}
+  useRotator: 0
   rotationValue: 0
   rotationValueLastFrame: 0
   moveDirection: 0
@@ -1161,7 +1164,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &637024697
+--- !u!114 &637024698
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1169,6 +1172,20 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 637024691}
   m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bea338b61bb41d147ba0fc524553c8f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: '::'
+  portName: COM3
+  baudRate: 9600
+--- !u!114 &637024699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 637024691}
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3022466ae86a1b499579fd27123213f, type: 3}
   m_Name: 
