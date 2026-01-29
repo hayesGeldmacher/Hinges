@@ -1027,8 +1027,9 @@ MonoBehaviour:
   moveDirection: 0
   moveDistance: 0
   doorSlammedDistance: 4
-  peekBuffer: 2
-  openBuffer: 6
+  peekBuffer: 10
+  openBuffer: 35
+  baseDistance: 2
   openTime: 0
   minClearTime: 5
   cleared: 0

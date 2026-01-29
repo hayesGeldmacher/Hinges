@@ -68,6 +68,12 @@ public class DoorInput : MonoBehaviour
     //minimum rotation past zero to be considered "open"
     [SerializeField] private int openBuffer = 6;
 
+    [Header("Distance Fields")]
+    //the starting distance value from the closed door
+    [SerializeField] private int baseDistance = 2;
+
+
+
     [Header("Clear Fields")]
     //tracks how long the door has been open without closing
     [SerializeField] private float openTime = 0f;
@@ -117,7 +123,7 @@ public class DoorInput : MonoBehaviour
             }
             else
             {
-                reader.OnEncoderChanged += HandleEncoder;
+                reader.OnEncoderChanged += HandleReader;
 
             }
         }
@@ -138,9 +144,73 @@ public class DoorInput : MonoBehaviour
             }
             else
             {
-                reader.OnEncoderChanged -= HandleEncoder;
+                reader.OnEncoderChanged -= HandleReader;
             }
         }
+    }
+
+    //called whenever the reader changes distance
+    void HandleReader(int value)
+    {
+        // in this example, this will print out whenever the encoder value changes
+        Debug.Log("Changed Encoder Value: " + value);
+
+        //subtract the base distance value to account for initial distance when door is closed
+        rotationValue = value - baseDistance;
+
+
+        moveDistance = rotationValue - rotationValueLastFrame;
+
+        //get the direction the door is moving
+        if (rotationValue > rotationValueLastFrame)
+        {
+            //door is opening
+            moveDirection = 1;
+        }
+        else if (rotationValue < rotationValueLastFrame)
+        {
+            //door is closing
+            moveDirection = -1;
+        }
+        else
+        {
+            //door is still
+            moveDirection = 0;
+        }
+
+
+        //get the current status of the door
+        if (rotationValue >= openBuffer)
+        {
+            //check if door is fully opened first
+            if (rotationValue >= openBuffer)
+            {
+                //if door is not already open, change to open state
+                if (status != DoorStatus.open)
+                {
+                    ChangeDoorStatus(DoorStatus.open);
+                }
+            }
+        }
+        //if not fully open, check if door is peeking
+        else if (rotationValue >= peekBuffer)
+        {
+            //if door is not already peeking, change to peeking state
+            if (status != DoorStatus.peeking)
+            {
+                ChangeDoorStatus(DoorStatus.peeking);
+            }
+            ;
+        }
+        else
+        {
+            //if not already closed, change to closed state
+            if (status != DoorStatus.closed)
+            {
+                ChangeDoorStatus(DoorStatus.closed);
+            }
+        }
+
     }
 
     //called whenever the encoder changes rotation

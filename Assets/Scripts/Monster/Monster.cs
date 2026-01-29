@@ -17,7 +17,9 @@ public class Monster : MonoBehaviour
     [Header("References")]
     public DoorInput door;               //Find DoorInput.instance if left empty
     public Light watchedLight;           //Assigned per room
-    public GameObject monsterVisual;     //Monster model 
+    public GameObject monsterVisual; //Monster model 
+    public GameObject monsterVisualJumpScare;
+    public MonsterAnimations monsterAnimation; //animations for monster
 
     [Header("Jumpscare Placeholder Settings")]
     public Image jumpscareFlash;
@@ -327,6 +329,16 @@ public class Monster : MonoBehaviour
 
         if (jumpscareFlash != null)
         {
+
+            //adding jumpscare animations - HG
+            if (monsterAnimation != null) {
+
+                monsterVisual.SetActive(false);
+                monsterVisualJumpScare.SetActive(true);
+                monsterAnimation.PlayScareAnimation();
+            }
+
+
             jumpscareFlash.gameObject.SetActive(true);
             jumpscareFlash.color = Color.white;
 

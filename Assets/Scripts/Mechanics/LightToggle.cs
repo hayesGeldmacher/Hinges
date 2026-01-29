@@ -26,7 +26,8 @@ public class LightToggle : MonoBehaviour
 
     public void DisableLightOnStart()
     {
-        targetLight.enabled = false;
+       //targetLight.enabled = false;
+       targetLight.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -43,12 +44,14 @@ public class LightToggle : MonoBehaviour
 
     private void Toggle()
     {
-        
+
         //if(!playerInRange) return; //Only toggle if the player is in range
 
         //Toggle the light on and off
         isLightOn = !isLightOn;
-        targetLight.enabled = isLightOn;
+        //changed to enable and disable game objects - HG
+        targetLight.gameObject.SetActive(isLightOn);
+        //targetLight.enabled = isLightOn;
 
         //play audio
         PlayAudioClip();
