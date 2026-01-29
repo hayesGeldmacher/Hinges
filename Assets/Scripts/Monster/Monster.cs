@@ -431,11 +431,12 @@ public class Monster : MonoBehaviour
             }
 
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(1.5f);
                 monsterVisualJumpScare.SetActive(true);
                 monsterAnimation.PlayScareAnimation();
 
-             jumpscareFlash.gameObject.SetActive(true);
+            /*
+            jumpscareFlash.gameObject.SetActive(true);
              jumpscareFlash.color = Color.white;
 
             for (int i = 0; i < flashCount; i++)
@@ -449,12 +450,13 @@ public class Monster : MonoBehaviour
                 // Play jumpscare sound on first flash
                 if (i == 0 && jumpscareAudio != null)
                 {
-                    jumpscareAudio.Play();
+                  //  jumpscareAudio.Play();
                 }
             }
+             */
 
-
-            if(blackFadeAnim != null)
+           // jumpscareAudio.Play();
+            if (blackFadeAnim != null)
             {
                 blackFadeAnim.SetTrigger("fade");
             }

@@ -18,7 +18,8 @@ public class RoomManager : MonoBehaviour
 
     [Header("Spawning Fields")]
     [SerializeField] private Transform roomSpawnLocation;
-
+    //black HUD image to fade in scene
+    [SerializeField] private Animator blackFadeAnim;
 
 
     [Header("Light Fields")]
@@ -63,6 +64,8 @@ public class RoomManager : MonoBehaviour
         DoorInput.instance.OnDoorPeeked += DoorPeek;
         
         SpawnRoomSpecific();
+
+        blackFadeAnim.SetTrigger("enter");
     }
 
     // Update is called once per frame
