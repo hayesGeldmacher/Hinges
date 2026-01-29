@@ -467,6 +467,7 @@ public class Monster : MonoBehaviour
                 gameOverUI.SetActive(true);
 
             }
+            yield return new WaitForSeconds(2f);
             restartGame.RestartCurrentGame();
         }
     }

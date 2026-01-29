@@ -51,6 +51,9 @@ public class RoomManager : MonoBehaviour
         }
 
         instance = this;
+
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
     #endregion
 
