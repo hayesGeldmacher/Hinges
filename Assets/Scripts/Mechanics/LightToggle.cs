@@ -27,7 +27,7 @@ public class LightToggle : MonoBehaviour
     public void DisableLightOnStart()
     {
        //targetLight.enabled = false;
-       targetLight.gameObject.SetActive(false);
+       targetLight.gameObject.SetActive(false); //- changed to disable gameObject -HG
     }
 
     private void OnEnable()

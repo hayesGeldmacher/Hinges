@@ -29,6 +29,8 @@ public class Monster : MonoBehaviour
     public float delayBeforeGameOver = 0.25f;
     private int flashCount = 3;
     public AudioSource jumpscareAudio;
+    public Animator blackFadeAnim; //black hud image that fades into cam view on death - HG
+    public GameObject doorMesh; //disable door mesh on jumpscare so monster doesn't clip - HG
 
     [Header("Room Positions")]
     public Transform farPoint;
@@ -338,6 +340,14 @@ public class Monster : MonoBehaviour
                 monsterAnimation.PlayScareAnimation();
             }
 
+            if (doorMesh != null)
+            {
+                doorMesh.SetActive(false);
+                
+            }
+
+           
+
 
             jumpscareFlash.gameObject.SetActive(true);
             jumpscareFlash.color = Color.white;
@@ -358,6 +368,10 @@ public class Monster : MonoBehaviour
             }
 
             yield return new WaitForSeconds(delayBeforeGameOver);
+            if(blackFadeAnim != null)
+            {
+                blackFadeAnim.SetTrigger("fade");
+            }
 
             if (gameOverUI != null)
             {
