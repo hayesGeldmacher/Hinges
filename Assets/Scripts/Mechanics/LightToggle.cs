@@ -9,12 +9,25 @@ public class LightToggle : MonoBehaviour
 
     //Private References
     private PlayerControls controls; // Input action asset
-    private bool isLightOn = true; // State of the light
+    public bool isLightOn = true; // State of the light - changed to public so doorInput can read- HG
 
     //array of audio clips to be played when light is toggled
     [SerializeField] private AudioClip[] clickAudioClips;
     //audio source that above clips are played off
     [SerializeField] private AudioSource clickAudioSource;
+
+    [Header("Rapid Flicking Fields")] //checks if the player is flipping light on/off fast -HG
+    //how much time player has to toggle immediately after a toggle for flicking -
+    [SerializeField] private float flickTimeThreshold;
+    //how much time currently has passed since last toggle
+    [SerializeField] private float flickTimeCurrent;
+    //must toggle at least three times within flicktimethreshold to flash
+    [SerializeField] private int currentFlickCount = 0;
+
+    //delegate for light flashing - HG
+    //delegate for when a new room is spawned - HG
+    public delegate void LightFlashedDelegate();
+    public LightFlashedDelegate OnLightFlashed;
 
     void Awake()
     {
@@ -53,6 +66,18 @@ public class LightToggle : MonoBehaviour
         targetLight.gameObject.SetActive(isLightOn);
         //targetLight.enabled = isLightOn;
 
+        //if flicked more than twice in succession, the light is flashed
+        currentFlickCount++;
+        if(currentFlickCount > 2)
+        {
+            flickTimeCurrent = 0;
+            currentFlickCount = 0;
+            OnLightFlashed?.Invoke();
+            Debug.Log("LIGHT WAS FLASHED");
+        }
+        //set flick timer
+        flickTimeCurrent = flickTimeThreshold;
+
         //play audio
         PlayAudioClip();
     }
@@ -73,5 +98,17 @@ public class LightToggle : MonoBehaviour
     public void AssignLightTarget(Light target)
     {
         targetLight = target;
+    }
+
+    private void Update()
+    {
+        if(currentFlickCount > 0)
+        {
+            flickTimeCurrent -= Time.deltaTime;
+            if(flickTimeCurrent <= 0)
+            {
+                currentFlickCount = 0;
+            }
+        }
     }
 }

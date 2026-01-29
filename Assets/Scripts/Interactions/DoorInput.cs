@@ -50,6 +50,9 @@ public class DoorInput : MonoBehaviour
 
     public delegate void doorPeekingDelegate();
     public doorPeekingDelegate OnDoorPeeked;
+
+    public delegate void doorClearedDelegate();
+    public doorClearedDelegate OnDoorCleared;
     #endregion
 
     [Header("Rotation Fields")]
@@ -79,8 +82,15 @@ public class DoorInput : MonoBehaviour
     [SerializeField] private float openTime = 0f;
     //the minimum time the door has to be open in order to "clear" the room
     [SerializeField] private float minClearTime = 5f;
+
+    [SerializeField] private float clearTime = 5f;
+
+    //max time needed to clear the room
+    [SerializeField] private float maxClearTime = 9f;
     //bool tracking whether door has been cleared/finished
     public bool cleared = false;
+    //Light class, checks if the light is currently on - HG
+    [SerializeField] LightToggle toggle;
 
     [Header("Audio Fields")]
     //Audio player + clips for the door creaking open
@@ -104,6 +114,12 @@ public class DoorInput : MonoBehaviour
     }
     public DoorStatus status;
     private DoorStatus previousStatus;
+
+
+    private void Start()
+    {
+        clearTime = Random.Range(minClearTime, maxClearTime);
+    }
 
     //on enable, subscribe to the encoder data
     //also enable test keyboard inputs
@@ -288,11 +304,15 @@ public class DoorInput : MonoBehaviour
         //track how long the door is open
         if (status == DoorStatus.open && !cleared)
         {
-            openTime += Time.deltaTime;
-            //once door open time reaches threshold, "clear" the room!
-            if (openTime >= minClearTime)
+            //only advance to clear status if door light is on!
+            if (toggle.isLightOn)
             {
-                ClearDoor();
+                openTime += Time.deltaTime;
+                //once door open time reaches threshold, "clear" the room!
+                if (openTime >= clearTime)
+                {
+                    ClearDoor();
+                }
             }
         }
 
@@ -373,6 +393,7 @@ public class DoorInput : MonoBehaviour
     {
         cleared = true;
         RoomManager.instance.CallClearedRoom();
+        OnDoorCleared?.Invoke();
         Debug.Log("Cleared the door!");
     }
 

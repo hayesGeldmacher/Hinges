@@ -17,6 +17,7 @@ public class Monster : MonoBehaviour
     [Header("References")]
     public DoorInput door;               //Find DoorInput.instance if left empty
     public Light watchedLight;           //Assigned per room
+    public LightToggle toggle;
     public GameObject monsterVisual; //Monster model 
     public GameObject monsterVisualJumpScare;
     public MonsterAnimations monsterAnimation; //animations for monster
@@ -31,6 +32,7 @@ public class Monster : MonoBehaviour
     public AudioSource jumpscareAudio;
     public Animator blackFadeAnim; //black hud image that fades into cam view on death - HG
     public GameObject doorMesh; //disable door mesh on jumpscare so monster doesn't clip - HG
+    public RestartGame restartGame;
 
     [Header("Room Positions")]
     public Transform farPoint;
@@ -39,6 +41,13 @@ public class Monster : MonoBehaviour
 
     [Tooltip("Flashes shorter than this are safe.")]
     public float holdGraceSeconds = 0.35f;
+
+    //how many times can we flash the monster before they become immune?
+    [Header("Light Flicking Fields")]
+    public int flashTimesTotal;
+    public int flashTimesCurrent;
+    //how many mistakes does a flash reduce? 
+    public int flashMistakeReduction;
 
     [Tooltip("After grace, add a mistake this often while light is held on.")]
     public float holdMistakeEverySeconds = 1.2f;
@@ -86,28 +95,72 @@ public class Monster : MonoBehaviour
     private GameObject currentRoomOwner; //The active room GameObject this monster is associated with
 
 
+    //bool for whether monster is currently active - HG
+    [SerializeField] private bool active = false;
+
     private void Awake()
     {
         if (door == null) door = DoorInput.instance;
         SetVisual(false);
         SetStage(Stage.None);
+        DetermineActive();
     }
 
     private void OnEnable()
     {
         if (DoorInput.instance != null)
+        {
             DoorInput.instance.OnDoorClosed += OnDoorClosed;
+            RoomManager.instance.OnRoomSpawned += OnRoomSpawned;
+            toggle.OnLightFlashed += OnLightFlashed;
+
+        }
     }
 
     private void OnDisable()
     {
         if (DoorInput.instance != null)
+        {
             DoorInput.instance.OnDoorClosed -= OnDoorClosed;
+            DoorInput.instance.OnDoorCleared -= OnRoomSpawned;
+            toggle.OnLightFlashed -= OnLightFlashed;
+        }
     }
+
+    //callback when roommanager spawns a new room -HG
+    private void OnRoomSpawned()
+    {
+        DetermineActive();
+    }
+
+    //called at start of new room, determines if monster should be active or not - HG
+    private bool DetermineActive()
+    {
+        //random check if monster should be active
+        int RandomCheck = Random.Range(0,3);
+        if (RandomCheck == 1)
+        {
+            Debug.Log("Monster is NOT active in this room!");
+            active = false;
+            SetVisual(false);
+            return (false);
+        }
+        else
+        {
+            Debug.Log("Monster is active in this room!");
+            active = true;
+            return (true);
+        }
+
+    }
+
 
     private void Update()
     {
         if (door == null) door = DoorInput.instance;
+
+        //if monster is not currently active, do not track- HG
+        if (!active) return;
 
         if (door != null && door.status == DoorInput.DoorStatus.closed)
         {
@@ -149,7 +202,8 @@ public class Monster : MonoBehaviour
         //if door is open while monster is close, register mistakes
         if (doorOpenNearIsDanger && (currentStage == Stage.Near || currentStage == Stage.Door))
         {
-            bool doorNotClosed = (door != null && door.status != DoorInput.DoorStatus.closed);
+            //changed that peeking open the door does not increase danger -HG
+            bool doorNotClosed = (door != null && door.status == DoorInput.DoorStatus.open);
 
             if (doorNotClosed)
             {
@@ -222,6 +276,7 @@ public class Monster : MonoBehaviour
     //Reset threat for the newly spawned room
     private void ResetForNewRoom()
     {
+        
         mistakes = 0;
         SetStage(Stage.None);
 
@@ -229,6 +284,9 @@ public class Monster : MonoBehaviour
         lightOnTime = 0f;
         nextHoldMistakeTime = 0f;
         nextNearDoorMistakeTime = 0f;
+
+        //check if should be active - HG
+        DetermineActive();
     }
 
     private void Summon()
@@ -263,8 +321,19 @@ public class Monster : MonoBehaviour
         RecomputeStage();
     }
 
+    private void OnLightFlashed()
+    {
+        if(flashTimesCurrent < flashTimesTotal)
+        {
+            flashTimesCurrent++;
+            mistakes = Mathf.Max(0, mistakes - flashMistakeReduction);
+            RecomputeStage();
+        }
+    }
+
     private void RecomputeStage()
     {
+        if (!active) return;
         int stageIndex = (mistakesPerStage <= 0) ? 0 : (mistakes / mistakesPerStage);
 
         Stage newStage =
@@ -281,6 +350,17 @@ public class Monster : MonoBehaviour
 
         currentStage = newStage;
 
+        //check for state to change audio
+        if(currentStage == Stage.None || currentStage == Stage.Far)
+        {
+            ChangeMonsterSoundState(true);
+        }
+        else
+        {
+            ChangeMonsterSoundState(false);
+        }
+
+
         if (currentStage == Stage.None)
         {
             SetVisual(false);
@@ -289,13 +369,19 @@ public class Monster : MonoBehaviour
         {
             SetVisual(true);
         }
+        
 
-        UpdateVisualTransform();
+            UpdateVisualTransform();
+    }
+
+    //changes breathing volume based on state
+    private void ChangeMonsterSoundState(bool far)
+    {
+       monsterAnimation.MonsterChangeStage(far);
     }
 
     private void UpdateVisualTransform()
     {
-        if (monsterVisual == null || !monsterVisual.activeSelf) return;
 
         Transform target = currentStage switch
         {
@@ -336,8 +422,6 @@ public class Monster : MonoBehaviour
             if (monsterAnimation != null) {
 
                 monsterVisual.SetActive(false);
-                monsterVisualJumpScare.SetActive(true);
-                monsterAnimation.PlayScareAnimation();
             }
 
             if (doorMesh != null)
@@ -346,11 +430,13 @@ public class Monster : MonoBehaviour
                 
             }
 
-           
 
+            yield return new WaitForSeconds(0.5f);
+                monsterVisualJumpScare.SetActive(true);
+                monsterAnimation.PlayScareAnimation();
 
-            jumpscareFlash.gameObject.SetActive(true);
-            jumpscareFlash.color = Color.white;
+             jumpscareFlash.gameObject.SetActive(true);
+             jumpscareFlash.color = Color.white;
 
             for (int i = 0; i < flashCount; i++)
             {
@@ -367,17 +453,19 @@ public class Monster : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(delayBeforeGameOver);
+
             if(blackFadeAnim != null)
             {
                 blackFadeAnim.SetTrigger("fade");
             }
+            yield return new WaitForSeconds(delayBeforeGameOver);
 
             if (gameOverUI != null)
             {
                 gameOverUI.SetActive(true);
 
             }
+            restartGame.RestartCurrentGame();
         }
     }
 }

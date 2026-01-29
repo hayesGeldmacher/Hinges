@@ -35,6 +35,10 @@ public class RoomManager : MonoBehaviour
     [Header("Audio Fields")]
     [SerializeField] AudioSource dingSource;
 
+    //delegate for when a new room is spawned - HG
+    public delegate void RoomSpawnedDelegate();
+    public RoomSpawnedDelegate OnRoomSpawned;
+
     //Sets up singleton pattern so that any script can call to roomManager without reference
     #region Singleton
     public static RoomManager instance;
@@ -73,6 +77,7 @@ public class RoomManager : MonoBehaviour
     //Spawns a particular type of room
     void SpawnRoomSpecific()
     {
+        OnRoomSpawned.Invoke();
         GameObject roomToSpawn = roomList[currentRoom];
         roomToSpawn.SetActive(true);
 

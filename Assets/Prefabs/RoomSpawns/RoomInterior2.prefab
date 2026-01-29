@@ -9063,6 +9063,9 @@ MonoBehaviour:
   dangerous: 0
   cleared: 0
   roomLight: {fileID: 9095313306251266073}
+  monsterFar: {fileID: 0}
+  monsterNear: {fileID: 0}
+  monsterDoor: {fileID: 0}
 --- !u!1 &6071031306442159464
 GameObject:
   m_ObjectHideFlags: 0
